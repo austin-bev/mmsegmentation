@@ -4,9 +4,8 @@ assign:
     # round-robin
     daily-shift-based
   assignees:
+    - MengzhangLI
     - xiexinch
-    - csatsurnh
+    - MeowZheng
+    - MengzhangLI
     - xiexinch
-    - csatsurnh
-    - xiexinch
-    - csatsurnh

@@ -7,9 +7,9 @@ import warnings
 from argparse import ArgumentParser
 
 import requests
-from mmengine import Config
+from mmcv import Config
 
-from mmseg.apis import inference_model, init_model, show_result_pyplot
+from mmseg.apis import inference_segmentor, init_segmentor, show_result_pyplot
 from mmseg.utils import get_root_logger
 
 # ignore warnings when segmentors inference
@@ -53,11 +53,10 @@ def parse_args():
         '-s', '--show', action='store_true', help='show results')
     parser.add_argument(
         '-d', '--device', default='cuda:0', help='Device used for inference')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
-def inference(config_name, checkpoint, args, logger=None):
+def inference_model(config_name, checkpoint, args, logger=None):
     cfg = Config.fromfile(config_name)
     if args.aug:
         if 'flip' in cfg.data.test.pipeline[
@@ -66,15 +65,14 @@ def inference(config_name, checkpoint, args, logger=None):
                 0.5, 0.75, 1.0, 1.25, 1.5, 1.75
             ]
             cfg.data.test.pipeline[1].flip = True
+        elif logger is None:
+            print(f'{config_name}: unable to start aug test', flush=True)
         else:
-            if logger is not None:
-                logger.error(f'{config_name}: unable to start aug test')
-            else:
-                print(f'{config_name}: unable to start aug test', flush=True)
+            logger.error(f'{config_name}: unable to start aug test')
 
-    model = init_model(cfg, checkpoint, device=args.device)
+    model = init_segmentor(cfg, checkpoint, device=args.device)
     # test a single image
-    result = inference_model(model, args.img)
+    result = inference_segmentor(model, args.img)
 
     # show the results
     if args.show:
@@ -102,7 +100,7 @@ def main(args):
                                       model_info['checkpoint'].strip())
                 try:
                     # build the model from a config file and a checkpoint file
-                    inference(config_name, checkpoint, args)
+                    inference_model(config_name, checkpoint, args)
                 except Exception:
                     print(f'{config_name} test failed!')
                     continue
@@ -139,7 +137,7 @@ def main(args):
             # test model inference with checkpoint
             try:
                 # build the model from a config file and a checkpoint file
-                inference(config_path, checkpoint, args, logger)
+                inference_model(config_path, checkpoint, args, logger)
             except Exception as e:
                 logger.error(f'{config_path} " : {repr(e)}')
 

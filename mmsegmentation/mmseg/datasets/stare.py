@@ -1,10 +1,12 @@
 # Copyright (c) OpenMMLab. All rights reserved.
-from mmseg.registry import DATASETS
-from .basesegdataset import BaseSegDataset
+import os.path as osp
+
+from .builder import DATASETS
+from .custom import CustomDataset
 
 
 @DATASETS.register_module()
-class STAREDataset(BaseSegDataset):
+class STAREDataset(CustomDataset):
     """STARE dataset.
 
     In segmentation map annotation for STARE, 0 stands for background, which is
@@ -12,18 +14,15 @@ class STAREDataset(BaseSegDataset):
     ``img_suffix`` is fixed to '.png' and ``seg_map_suffix`` is fixed to
     '.ah.png'.
     """
-    METAINFO = dict(
-        classes=('background', 'vessel'),
-        palette=[[120, 120, 120], [6, 230, 230]])
 
-    def __init__(self,
-                 img_suffix='.png',
-                 seg_map_suffix='.ah.png',
-                 reduce_zero_label=False,
-                 **kwargs) -> None:
-        super().__init__(
-            img_suffix=img_suffix,
-            seg_map_suffix=seg_map_suffix,
-            reduce_zero_label=reduce_zero_label,
+    CLASSES = ('background', 'vessel')
+
+    PALETTE = [[120, 120, 120], [6, 230, 230]]
+
+    def __init__(self, **kwargs):
+        super(STAREDataset, self).__init__(
+            img_suffix='.png',
+            seg_map_suffix='.ah.png',
+            reduce_zero_label=False,
             **kwargs)
-        assert self.file_client.exists(self.data_prefix['img_path'])
+        assert osp.exists(self.img_dir)

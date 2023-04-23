@@ -1,14 +1,3 @@
-# Datasets
-artifacts
-data/CamVid11/*
-data/CamVid32/*
-data/cityscapes/*/
-data/test
-wandb
-work_dirs
-results
-temp_images
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

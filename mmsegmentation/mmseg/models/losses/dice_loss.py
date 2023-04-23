@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from mmseg.registry import MODELS
+from ..builder import LOSSES
 from .utils import get_class_weight, weighted_loss
 
 
@@ -35,7 +35,7 @@ def dice_loss(pred,
 
 
 @weighted_loss
-def binary_dice_loss(pred, target, valid_mask, smooth=1, exponent=2, **kwards):
+def binary_dice_loss(pred, target, valid_mask, smooth=1, exponent=2, **kwargs):
     assert pred.shape[0] == target.shape[0]
     pred = pred.reshape(pred.shape[0], -1)
     target = target.reshape(target.shape[0], -1)
@@ -47,7 +47,7 @@ def binary_dice_loss(pred, target, valid_mask, smooth=1, exponent=2, **kwards):
     return 1 - num / den
 
 
-@MODELS.register_module()
+@LOSSES.register_module()
 class DiceLoss(nn.Module):
     """DiceLoss.
 
@@ -79,8 +79,8 @@ class DiceLoss(nn.Module):
                  loss_weight=1.0,
                  ignore_index=255,
                  loss_name='loss_dice',
-                 **kwards):
-        super().__init__()
+                 **kwargs):
+        super(DiceLoss, self).__init__()
         self.smooth = smooth
         self.exponent = exponent
         self.reduction = reduction
@@ -94,7 +94,7 @@ class DiceLoss(nn.Module):
                 target,
                 avg_factor=None,
                 reduction_override=None,
-                **kwards):
+                **kwargs):
         assert reduction_override in (None, 'none', 'mean', 'sum')
         reduction = (
             reduction_override if reduction_override else self.reduction)
